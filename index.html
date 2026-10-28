@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>XAUUSD PRO</title>
+    <title>XAUUSD PRO - AI Signal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0b0e14; color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -13,6 +13,8 @@
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #787b86; font-size: 12px; cursor: pointer; transition: color 0.3s; }
         .nav-item.active { color: #2962ff; }
         .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: currentColor; }
+        .pulse-live { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -21,9 +23,12 @@
     <div class="fixed top-0 w-full bg-[#131722] p-4 z-50 border-b border-[#2a2e39] flex justify-between items-center">
         <h1 class="text-xl font-bold text-yellow-500 flex items-center gap-2">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-            XAUUSD PRO
+            XAUUSD - MT5
         </h1>
-        <span class="text-green-500 text-xs font-bold px-2 py-1 bg-green-500/10 rounded-full">● LIVE</span>
+        <div class="flex items-center gap-2">
+            <span id="countdownTimer" class="text-gray-400 text-xs font-mono">05:00</span>
+            <span class="text-green-500 text-xs font-bold px-2 py-1 bg-green-500/10 rounded-full pulse-live">● AUTO</span>
+        </div>
     </div>
 
     <div class="mt-[60px]">
@@ -53,59 +58,55 @@
             </div>
         </div>
 
-        <!-- Tab 2: News -->
-        <div id="tab-news" class="tab-content h-[calc(100vh-130px)]">
-            <div class="tradingview-widget-container" style="height:100%;width:100%">
-              <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-              {
-              "colorTheme": "dark",
-              "isTransparent": true,
-              "width": "100%",
-              "height": "100%",
-              "locale": "ar_AE",
-              "importanceFilter": "0,1",
-              "currencyFilter": "USD"
-              }
-              </script>
-            </div>
-        </div>
-
-        <!-- Tab 3: AI Predict -->
+        <!-- Tab 2: AI Predict (Auto) -->
         <div id="tab-ai" class="tab-content p-4">
-            <div class="bg-[#131722] rounded-xl p-5 shadow-lg border border-[#2a2e39]">
+            <div class="bg-[#131722] rounded-xl p-5 shadow-lg border border-[#2a2e39] relative overflow-hidden">
                 
-                <div class="mb-5">
-                    <label class="block text-sm text-gray-400 mb-2">🔑 مفتاح Gemini API</label>
-                    <input type="password" id="apiKeyInput" class="w-full bg-[#0b0e14] border border-[#2a2e39] rounded-lg p-3 text-white text-left text-sm focus:outline-none focus:border-blue-500" placeholder="AIzaSy...">
-                    <button onclick="saveApiKey()" class="w-full mt-3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded-lg text-sm transition">حفظ المفتاح محلياً</button>
-                    <p class="text-xs text-gray-500 mt-2 text-center">يتم حفظ المفتاح في هاتفك فقط</p>
-                </div>
-
-                <hr class="border-[#2a2e39] my-5">
-
-                <div class="text-center mb-5">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-600/20 rounded-full mb-3">
-                        <svg class="w-8 h-8 text-purple-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 0-9 9c0 3.39 1.88 6.35 4.67 7.96.22.13.33.39.33.65v2.89c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-2.89c0-.26.11-.52.33-.65A9.005 9.005 0 0 0 21 11a9 9 0 0 0-9-9zm-1 18h-2v-2h2v2zm4 0h-2v-2h2v2zm-2-5.11v1.11h-2v-1.11c-2.48-.94-4-3.41-4-6.39 0-3.87 3.13-7 7-7s7 3.13 7 7c0 2.98-1.52 5.45-4 6.39z"/></svg>
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600/20 rounded-full mb-3 relative">
+                        <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 0-9 9c0 3.39 1.88 6.35 4.67 7.96.22.13.33.39.33.65v2.89c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-2.89c0-.26.11-.52.33-.65A9.005 9.005 0 0 0 21 11a9 9 0 0 0-9-9zm-1 18h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
+                        <span class="absolute top-0 right-0 flex h-3 w-3">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                        </span>
                     </div>
-                    <h2 class="text-lg font-bold text-white mb-1">تنبؤ أسعار الذهب لحظياً</h2>
-                    <p class="text-xs text-gray-400">يستخدم الذكاء الاصطناعي لتحليل السوق</p>
+                    <h2 class="text-lg font-bold text-white mb-1">رادار الذكاء الاصطناعي (SMC/ICT)</h2>
+                    <p class="text-xs text-gray-400">تحليل آلي على مدار الساعة لزوج الذهب/دولار</p>
                 </div>
 
-                <button onclick="analyzeMarket()" id="analyzeBtn" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-3 rounded-xl text-md shadow-lg shadow-purple-500/30 flex justify-center items-center gap-2 mb-4">
-                    <span id="btnText">🔄 تحديث التحليل</span>
-                    <svg id="loadingIcon" class="animate-spin h-5 w-5 hidden text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                </button>
+                <div id="loadingBox" class="flex flex-col items-center justify-center py-10">
+                    <svg class="animate-spin h-10 w-10 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <p class="text-sm text-gray-400">جاري قراءة السيولة وهيكل السوق...</p>
+                </div>
 
-                <div id="resultBox" class="hidden bg-[#0b0e14] border border-[#2a2e39] rounded-xl p-4 text-center">
-                    <div id="predictionTitle" class="text-2xl font-black mb-2"></div>
-                    <div id="predictionReason" class="text-sm text-gray-300 leading-relaxed"></div>
+                <div id="resultBox" class="hidden text-center">
+                    <div id="predictionSignal" class="text-4xl font-black mb-4 py-4 rounded-xl border border-dashed"></div>
+                    
+                    <div class="bg-[#0b0e14] p-4 rounded-lg border border-[#2a2e39] text-right">
+                        <p class="text-yellow-500 text-xs font-bold mb-1">سبب الدخول (SMC):</p>
+                        <p id="predictionReason" class="text-sm text-gray-300 leading-relaxed mb-3"></p>
+                        
+                        <div class="flex justify-between border-t border-[#2a2e39] pt-3 mt-2">
+                            <div>
+                                <span class="block text-[10px] text-gray-500">آخر تحديث</span>
+                                <span id="lastUpdateTime" class="text-xs text-gray-300 font-mono">--:--</span>
+                            </div>
+                            <div class="text-left">
+                                <span class="block text-[10px] text-gray-500">حالة السوق</span>
+                                <span class="text-xs text-green-400 font-bold">نشط</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="errorBox" class="hidden bg-red-900/20 border border-red-500/50 rounded-xl p-4 mt-4 text-center">
-                    <p class="text-red-400 font-bold mb-1">حدث خطأ</p>
+                    <p class="text-red-400 font-bold mb-1">توقف الرادار</p>
                     <p id="errorText" class="text-xs text-red-300 direction-ltr"></p>
                 </div>
+
+                <button onclick="analyzeMarket()" class="w-full mt-6 bg-[#1f2937] hover:bg-gray-600 text-gray-300 py-2 rounded-lg text-xs transition border border-[#2a2e39]">
+                    تحديث إجباري الآن
+                </button>
 
             </div>
         </div>
@@ -115,19 +116,22 @@
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('chart', this)">
             <svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 4 6-6"/></svg>
-            <span>الرسم البياني</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('news', this)">
-            <svg viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9.5L18.5 7H17"/></svg>
-            <span>الأخبار</span>
+            <span>الشارت</span>
         </div>
         <div class="nav-item" onclick="switchTab('ai', this)">
             <svg viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 0-9 9c0 3.39 1.88 6.35 4.67 7.96.22.13.33.39.33.65v2.89c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-2.89c0-.26.11-.52.33-.65A9.005 9.005 0 0 0 21 11a9 9 0 0 0-9-9zm-1 18h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
-            <span>الذكاء الاصطناعي</span>
+            <span>التنبؤ الآلي</span>
         </div>
     </div>
 
     <script>
+        // ==========================================
+        // 🔴 ضع مفتاح API الخاص بك هنا بين علامتي التنصيص
+        // ==========================================
+        const GEMINI_API_KEY = "ضع_المفتاح_هنا_بدون_حذف_علامات_التنصيص"; 
+        
+        let countdown = 300; // 5 minutes in seconds
+
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
@@ -135,43 +139,25 @@
             element.classList.add('active');
         }
 
-        window.onload = function() {
-            const savedKey = localStorage.getItem('gemini_api_key');
-            if(savedKey) document.getElementById('apiKeyInput').value = savedKey;
-        };
-
-        function saveApiKey() {
-            const key = document.getElementById('apiKeyInput').value.trim();
-            if(key) {
-                localStorage.setItem('gemini_api_key', key);
-                alert('تم حفظ المفتاح بنجاح!');
-            } else {
-                alert('يرجى إدخال المفتاح أولاً');
-            }
-        }
-
         async function analyzeMarket() {
-            const apiKey = document.getElementById('apiKeyInput').value.trim();
-            const btnText = document.getElementById('btnText');
-            const loadingIcon = document.getElementById('loadingIcon');
+            if(GEMINI_API_KEY === "ضع_المفتاح_هنا_بدون_حذف_علامات_التنصيص" || GEMINI_API_KEY === "") {
+                document.getElementById('errorBox').classList.remove('hidden');
+                document.getElementById('errorText').innerText = "لم تقم بوضع مفتاح API داخل الكود المصدر (HTML).";
+                return;
+            }
+
+            const loadingBox = document.getElementById('loadingBox');
             const resultBox = document.getElementById('resultBox');
             const errorBox = document.getElementById('errorBox');
             const errorText = document.getElementById('errorText');
 
-            if(!apiKey) {
-                errorBox.classList.remove('hidden');
-                errorText.innerText = 'يرجى إدخال مفتاح API أولاً.';
-                return;
-            }
-
-            btnText.innerText = 'جاري تحليل السيولة...';
-            loadingIcon.classList.remove('hidden');
+            loadingBox.classList.remove('hidden');
             resultBox.classList.add('hidden');
             errorBox.classList.add('hidden');
 
             try {
-                // تم تغيير اسم النموذج هنا إلى المستقر gemini-pro
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+                // استخدام النسخة المحدثة لضمان الدقة
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
                 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -179,11 +165,12 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: "أنت خبير تداول متقدم في أسواق الفوركس وتعمل بأساليب SMC و ICT. بناءً على وضع السوق الحالي بشكل عام لزوج الذهب مقابل الدولار (XAUUSD)، أعطني توقعك. أجب بصيغة JSON فقط تحتوي على مفتاحين: 'prediction' (قيمته إما 'صعود' أو 'هبوط') و 'reason' (شرح مختصر جداً بالعربية للسبب في سطر واحد)."
+                                text: "أنت خبير تداول خوارزمي محترف تتداول الذهب (XAUUSD) حصراً وتعتمد على مفاهيم الـ SMC (Smart Money Concepts) و ICT (Inner Circle Trader) ومناطق العرض والطلب. قم بدراسة الوضع الاقتصادي والسياسي الحالي لحظياً وهيكل السوق. أعطني توصية قاطعة للذهب الآن. \n\nشروط الرد: يجب أن ترد بصيغة JSON فقط يحتوي على:\n1. 'signal': وتكون قيمتها إما 'اشتري' أو 'بيع' فقط.\n2. 'analysis': تحليل دقيق جداً لا يتجاوز 3 أسطر بالعربية يشرح سبب الدخول من ناحية كسر الهيكل (BOS) أو تغير الاتجاه (CHOCH) أو الأخبار المؤثرة."
                             }]
                         }],
                         generationConfig: {
-                            temperature: 0.7
+                            temperature: 0.2, // تقليل العشوائية ليكون دقيقاً ومنطقياً
+                            response_mime_type: "application/json"
                         }
                     })
                 });
@@ -194,32 +181,58 @@
                     throw new Error(data.error?.message || `خطأ سيرفر رقم: ${response.status}`);
                 }
 
-                // استخراج النص من الرد
                 let aiText = data.candidates[0].content.parts[0].text;
-                
-                // تنظيف النص في حال أضاف النموذج علامات Markdown للـ JSON
-                aiText = aiText.replace(/```json/g, '').replace(/```/g, '').trim();
-                
                 const result = JSON.parse(aiText);
 
-                const titleEl = document.getElementById('predictionTitle');
-                if(result.prediction === 'صعود') {
-                    titleEl.innerHTML = '<span class="text-green-500">راح يرتفع 🚀 (شراء)</span>';
+                const signalEl = document.getElementById('predictionSignal');
+                
+                if(result.signal === 'اشتري') {
+                    signalEl.innerHTML = 'اشتري 🚀';
+                    signalEl.className = 'text-4xl font-black mb-4 py-4 rounded-xl border-2 border-green-500 text-green-500 bg-green-500/10 shadow-[0_0_15px_rgba(34,197,94,0.5)]';
+                } else if (result.signal === 'بيع') {
+                    signalEl.innerHTML = 'بيع 🩸';
+                    signalEl.className = 'text-4xl font-black mb-4 py-4 rounded-xl border-2 border-red-500 text-red-500 bg-red-500/10 shadow-[0_0_15px_rgba(239,68,68,0.5)]';
                 } else {
-                    titleEl.innerHTML = '<span class="text-red-500">راح يهبط 🩸 (بيع)</span>';
+                    signalEl.innerHTML = result.signal; // للحماية في حال رد بشيء آخر
                 }
                 
-                document.getElementById('predictionReason').innerText = result.reason;
+                document.getElementById('predictionReason').innerText = result.analysis;
+                
+                // تحديث الوقت
+                const now = new Date();
+                document.getElementById('lastUpdateTime').innerText = now.toLocaleTimeString('ar-IQ', { timeZone: 'Asia/Baghdad' });
+                
+                loadingBox.classList.add('hidden');
                 resultBox.classList.remove('hidden');
 
+                // إعادة ضبط العداد
+                countdown = 300; 
+
             } catch (error) {
+                loadingBox.classList.add('hidden');
                 errorBox.classList.remove('hidden');
                 errorText.innerText = error.message; 
-            } finally {
-                btnText.innerText = '🔄 تحديث التحليل';
-                loadingIcon.classList.add('hidden');
             }
         }
+
+        // تحديث العداد الزمني بالثواني والدقائق
+        setInterval(() => {
+            if(countdown > 0) {
+                countdown--;
+                let minutes = Math.floor(countdown / 60);
+                let seconds = countdown % 60;
+                document.getElementById('countdownTimer').innerText = 
+                    (minutes < 10 ? '0' : '') + minutes + ':' + 
+                    (seconds < 10 ? '0' : '') + seconds;
+            } else {
+                analyzeMarket(); // تحديث تلقائي عند انتهاء الوقت
+            }
+        }, 1000);
+
+        // تشغيل التحليل فور فتح الصفحة
+        window.onload = function() {
+            analyzeMarket();
+        };
     </script>
 </body>
 </html>
