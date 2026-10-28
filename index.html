@@ -3,477 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>XAUUSD AI Analysis Pro</title>
+    <title>XAUUSD AI Trading</title>
     
-    <!-- Tailwind CSS for styling -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            gold: '#FFD700',
-                            dark: '#0f172a',
-                            panel: '#1e293b',
-                            up: '#10b981', // Emerald 500
-                            down: '#ef4444', // Red 500
-                        }
-                    },
-                    padding: {
-                        'safe': 'env(safe-area-inset-bottom)',
-                    }
+                    colors: { brand: { dark: '#0f172a', panel: '#1e293b', gold: '#FFD700' } },
+                    padding: { 'safe': 'env(safe-area-inset-bottom)' }
                 }
             }
         }
     </script>
     
     <style>
-        /* Custom scrollbar for webkit (iOS) */
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155; 
-            border-radius: 4px;
-        }
-        
         body {
             background-color: #0f172a;
             color: #f8fafc;
-            /* Prevent pull-to-refresh on mobile */
             overscroll-behavior-y: none; 
             -webkit-tap-highlight-color: transparent;
         }
-
-        /* Tab switching logic to prevent iframes from reloading */
         .tab-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-in-out;
+            display: none;
+            height: calc(100vh - 140px); /* Adjust for header and bottom nav */
             overflow-y: auto;
-            overflow-x: hidden;
-            padding-bottom: 90px; /* Space for bottom nav */
+            padding-bottom: 20px;
         }
         .tab-content.active {
-            opacity: 1;
-            pointer-events: auto;
-            z-index: 10;
+            display: block;
         }
-
         .glass-nav {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Pulse animation for live indicator */
-        @keyframes pulse-dot {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
-        }
-        .live-dot {
-            animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
     </style>
 </head>
-<body class="fixed inset-0 flex flex-col bg-brand-dark text-white overflow-hidden w-full h-full">
+<body class="fixed inset-0 flex flex-col bg-brand-dark text-white w-full h-full">
 
-    <!-- Global Header -->
-    <header class="fixed top-0 w-full z-50 bg-brand-dark border-b border-gray-800 pt-safe">
+    <!-- Header -->
+    <header class="w-full bg-brand-dark border-b border-gray-800 pt-safe shrink-0">
         <div class="flex justify-between items-center px-4 py-3">
             <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-robot text-brand-gold text-xl"></i>
-                <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-gold to-yellow-200">
-                    XAUUSD AI
-                </h1>
+                <i class="fa-solid fa-chart-line text-brand-gold text-xl"></i>
+                <h1 class="text-lg font-bold text-white">XAUUSD <span class="text-brand-gold">PRO</span></h1>
             </div>
-            <div class="flex items-center space-x-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                <div class="w-2 h-2 rounded-full bg-green-500 live-dot"></div>
-                <span class="text-xs font-medium tracking-wide text-green-400">LIVE</span>
+            <div class="flex items-center space-x-2 bg-gray-800 px-3 py-1 rounded-full">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span class="text-xs font-medium text-green-400">LIVE</span>
             </div>
-        </div>
-        
-        <!-- Real-time Ticker Tape via TradingView -->
-        <div class="w-full h-[40px] border-t border-gray-800 bg-brand-panel overflow-hidden relative pointer-events-none">
-            <!-- Ticker widget overlay to prevent clicking away -->
-            <div class="absolute inset-0 z-10 pointer-events-auto"></div>
-            <!-- TradingView Widget BEGIN -->
-            <div class="tradingview-widget-container">
-                <div class="tradingview-widget-container__widget"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
-                {
-                "symbol": "OANDA:XAUUSD",
-                "width": "100%",
-                "colorTheme": "dark",
-                "isTransparent": true,
-                "locale": "en"
-                }
-                </script>
-            </div>
-            <!-- TradingView Widget END -->
         </div>
     </header>
 
-    <!-- Main Content Container (Accounts for Header) -->
-    <main class="relative flex-1 mt-[95px] w-full h-full">
+    <!-- Main Content -->
+    <main class="flex-1 w-full relative">
 
-        <!-- TAB 1: DASHBOARD (AI & Signals) -->
-        <div id="tab-home" class="tab-content active px-4 pt-4">
-            
-            <!-- AI SMC/ICT Strategy Tracker -->
-            <div class="bg-brand-panel rounded-2xl p-4 mb-6 border border-gray-700 shadow-lg shadow-black/50">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-                        <i class="fa-solid fa-microchip mr-2 text-brand-gold"></i> SMC / ICT Engine
-                    </h2>
-                    <span id="ai-trend-badge" class="px-2 py-1 text-xs font-bold rounded bg-green-900/50 text-green-400 border border-green-800">
-                        BULLISH
-                    </span>
-                </div>
-                
-                <div class="space-y-3">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-400">Market Structure (4H)</span>
-                        <span class="font-medium text-white">Bullish BoS</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-400">Liquidity Zones</span>
-                        <span class="font-medium text-white">Swept Sell-side</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-400">Fair Value Gap (FVG)</span>
-                        <span class="font-medium text-brand-gold">Unmitigated [2315-2318]</span>
-                    </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-700">
-                        <h3 class="text-xs text-gray-400 mb-2">AI PREDICTED SIGNAL</h3>
-                        <div id="ai-signal-box" class="bg-gradient-to-r from-green-900/40 to-brand-panel p-3 rounded-xl border border-green-800/50">
-                            <div class="flex justify-between items-end mb-2">
-                                <span class="text-xl font-bold text-green-400">BUY</span>
-                                <span class="text-xs text-gray-300">Confidence: <span id="ai-confidence">94</span>%</span>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                                <div class="bg-gray-800 rounded p-1">
-                                    <span class="block text-gray-500">Entry</span>
-                                    <span class="font-bold text-white" id="sig-entry">2318.50</span>
-                                </div>
-                                <div class="bg-gray-800 rounded p-1">
-                                    <span class="block text-gray-500">SL</span>
-                                    <span class="font-bold text-red-400" id="sig-sl">2314.00</span>
-                                </div>
-                                <div class="bg-gray-800 rounded p-1">
-                                    <span class="block text-gray-500">TP</span>
-                                    <span class="font-bold text-green-400" id="sig-tp">2335.00</span>
-                                </div>
-                            </div>
-                            <button onclick="copyToMT5()" class="mt-3 w-full bg-brand-gold text-brand-dark font-bold py-2 rounded-lg text-sm flex items-center justify-center space-x-2 active:bg-yellow-500 transition">
-                                <i class="fa-solid fa-copy"></i>
-                                <span>Copy Signal to MT5</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TradingView Technical Analysis Widget -->
-            <div class="bg-brand-panel rounded-2xl overflow-hidden border border-gray-700 shadow-lg shadow-black/50 h-[450px]">
-                <div class="p-3 border-b border-gray-700 flex items-center">
-                    <i class="fa-solid fa-gauge-high mr-2 text-brand-gold"></i>
-                    <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">Technical Oscillators</h2>
-                </div>
-                <!-- TradingView Widget BEGIN -->
-                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-                    <div class="tradingview-widget-container__widget" style="height: calc(100% - 32px); width: 100%;"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
-                    {
-                    "interval": "15m",
-                    "width": "100%",
-                    "isTransparent": true,
-                    "height": "100%",
-                    "symbol": "OANDA:XAUUSD",
-                    "showIntervalTabs": true,
-                    "displayMode": "single",
-                    "locale": "en",
-                    "colorTheme": "dark"
-                    }
-                    </script>
-                </div>
-                <!-- TradingView Widget END -->
-            </div>
-        </div>
-
-        <!-- TAB 2: ADVANCED CHART -->
-        <div id="tab-chart" class="tab-content w-full h-full">
-            <!-- TradingView Widget BEGIN -->
+        <!-- TAB 1: CHART -->
+        <div id="tab-chart" class="tab-content active w-full h-full">
             <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-                <div id="tradingview_xauusd" style="height: calc(100% - 20px); width: 100%;"></div>
+                <div id="tradingview_xauusd" style="height: 100%; width: 100%;"></div>
                 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
                 <script type="text/javascript">
-                new TradingView.widget(
-                {
-                "autosize": true,
-                "symbol": "OANDA:XAUUSD",
-                "interval": "15",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1",
-                "locale": "en",
-                "enable_publishing": false,
-                "backgroundColor": "#0f172a",
-                "gridColor": "#1e293b",
-                "hide_top_toolbar": false,
-                "hide_legend": false,
-                "save_image": false,
-                "container_id": "tradingview_xauusd",
-                "studies": [
-                    "Volume@tv-basicstudies",
-                    "MACD@tv-basicstudies",
-                    "RSI@tv-basicstudies"
-                ]
-                }
-                );
+                new TradingView.widget({
+                    "autosize": true,
+                    "symbol": "OANDA:XAUUSD",
+                    "interval": "15",
+                    "timezone": "Asia/Riyadh",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "ar",
+                    "enable_publishing": false,
+                    "backgroundColor": "#0f172a",
+                    "gridColor": "#1e293b",
+                    "hide_top_toolbar": false,
+                    "container_id": "tradingview_xauusd"
+                });
                 </script>
             </div>
-            <!-- TradingView Widget END -->
         </div>
 
-        <!-- TAB 3: NEWS & CALENDAR -->
-        <div id="tab-news" class="tab-content px-4 pt-4">
-            <div class="bg-brand-panel rounded-2xl overflow-hidden border border-gray-700 shadow-lg shadow-black/50 h-[600px]">
-                <div class="p-3 border-b border-gray-700 flex items-center bg-brand-panel z-10 relative">
-                    <i class="fa-solid fa-newspaper mr-2 text-brand-gold"></i>
-                    <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">Economic Calendar (Impacts Gold)</h2>
-                </div>
-                <!-- TradingView Widget BEGIN -->
-                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-                    <div class="tradingview-widget-container__widget" style="height: calc(100% - 40px); width: 100%;"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-                    {
+        <!-- TAB 2: NEWS -->
+        <div id="tab-news" class="tab-content w-full h-full px-2 pt-2">
+            <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                {
                     "colorTheme": "dark",
                     "isTransparent": true,
                     "width": "100%",
                     "height": "100%",
-                    "locale": "en",
+                    "locale": "ar_AE",
                     "importanceFilter": "-1,0,1",
                     "currencyFilter": "USD"
-                    }
-                    </script>
-                </div>
-                <!-- TradingView Widget END -->
+                }
+                </script>
             </div>
         </div>
 
-        <!-- TAB 4: AI PREDICTION (تنبؤ الذكاء الاصطناعي) -->
-        <div id="tab-ai" class="tab-content px-4 pt-4">
-            <div class="bg-brand-panel rounded-2xl p-5 border border-indigo-900/50 shadow-lg shadow-black/50 flex flex-col items-center justify-center min-h-[450px]">
-                
-                <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(99,102,241,0.5)]" id="ai-icon-container">
-                    <i class="fa-solid fa-brain text-4xl text-white"></i>
+        <!-- TAB 3: AI PREDICTION -->
+        <div id="tab-ai" class="tab-content w-full h-full px-4 pt-4">
+            <div class="bg-brand-panel rounded-2xl p-5 border border-indigo-900 shadow-lg mb-6">
+                <!-- API Key Input -->
+                <div class="mb-5 bg-gray-900 p-3 rounded-xl border border-gray-700">
+                    <label class="block text-xs text-gray-400 mb-2" dir="rtl">
+                        <i class="fa-solid fa-key text-brand-gold mr-1"></i> مفتاح Gemini API (مطلوب للتحليل)
+                    </label>
+                    <input type="password" id="api-key-input" placeholder="ضع مفتاح API هنا..." class="w-full bg-gray-800 border border-gray-600 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500 mb-2" dir="ltr">
+                    <button onclick="saveApiKey()" class="w-full bg-gray-700 text-white text-xs py-2 rounded-lg font-bold active:bg-gray-600">حفظ المفتاح محلياً</button>
+                    <p class="text-[10px] text-gray-500 mt-2 text-center" dir="rtl">سيتم حفظ المفتاح في متصفح هاتفك فقط ولن يتم إرساله لأي جهة أخرى.</p>
                 </div>
-                
-                <h2 class="text-xl font-bold text-white mb-2 text-center font-sans tracking-wide" dir="rtl">تنبؤ الذكاء الاصطناعي</h2>
-                <p class="text-gray-400 text-sm text-center mb-8 px-2" dir="rtl">
-                    يقوم نظام الذكاء الاصطناعي (Gemini AI) بدراسة السوق، سيولة ICT، والأخبار اللحظية لتوقع اتجاه الذهب.
-                </p>
-                
-                <!-- زر التحليل -->
-                <button id="btn-analyze" onclick="analyzeMarketWithAI()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center space-x-3 text-lg">
-                    <span class="mr-2" dir="rtl">حلل السوق الآن</span>
-                    <i class="fa-solid fa-bolt text-yellow-300"></i>
-                </button>
 
-                <!-- حالة التحميل (جاري التحليل) -->
-                <div id="ai-loading" class="hidden w-full mt-6 flex-col items-center">
-                    <div class="relative w-12 h-12 mb-4">
-                        <div class="absolute inset-0 border-t-4 border-indigo-500 border-solid rounded-full animate-spin"></div>
-                        <div class="absolute inset-2 border-t-4 border-purple-400 border-solid rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-brain text-2xl text-white"></i>
                     </div>
-                    <p class="text-sm text-indigo-300 animate-pulse font-medium" dir="rtl">الذكاء الاصطناعي يدرس الشارت الآن...</p>
-                </div>
+                    <h2 class="text-lg font-bold text-white mb-4 text-center" dir="rtl">تنبؤ أسعار الذهب (الذكاء الاصطناعي)</h2>
+                    
+                    <button id="btn-analyze" onclick="analyzeMarketWithAI()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center space-x-2">
+                        <span dir="rtl">حلل السوق الآن</span>
+                        <i class="fa-solid fa-bolt text-brand-gold"></i>
+                    </button>
 
-                <!-- صندوق النتيجة -->
-                <div id="ai-result" class="hidden w-full mt-6 p-5 rounded-xl border transition-all duration-500">
-                    <div class="flex justify-center mb-3">
-                        <h3 id="ai-direction-text" class="text-4xl font-black text-center tracking-tighter">راح يرتفع</h3>
+                    <!-- Loading -->
+                    <div id="ai-loading" class="hidden w-full mt-6 flex-col items-center">
+                        <i class="fa-solid fa-circle-notch fa-spin text-3xl text-indigo-400 mb-3"></i>
+                        <p class="text-sm text-indigo-300 animate-pulse" dir="rtl">جاري دراسة البيانات...</p>
                     </div>
-                    <div class="w-full h-px bg-gray-700 my-3"></div>
-                    <p id="ai-reason-text" class="text-sm text-gray-300 text-right leading-relaxed font-medium" dir="rtl"></p>
-                </div>
 
+                    <!-- Result -->
+                    <div id="ai-result" class="hidden w-full mt-6 p-4 rounded-xl border transition-all duration-300">
+                        <h3 id="ai-direction-text" class="text-3xl font-black text-center mb-3"></h3>
+                        <div class="w-full h-px bg-gray-700 my-3"></div>
+                        <p id="ai-reason-text" class="text-sm text-gray-200 text-right leading-relaxed" dir="rtl"></p>
+                    </div>
+                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Bottom Navigation Bar (iOS Style) -->
-    <nav class="fixed bottom-0 w-full glass-nav z-50 pb-safe">
-        <div class="flex justify-around items-center h-16 px-1">
-            <button type="button" onclick="switchTab('home')" id="btn-home" class="nav-btn flex flex-col items-center justify-center w-full h-full text-brand-gold transition-colors duration-200">
-                <i class="fa-solid fa-bolt text-xl mb-1"></i>
-                <span class="text-[10px] font-medium">Signals</span>
-            </button>
-            <button type="button" onclick="switchTab('chart')" id="btn-chart" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-gray-300 transition-colors duration-200">
+    <!-- Bottom Navigation -->
+    <nav class="w-full glass-nav z-50 pb-safe shrink-0 h-[70px]">
+        <div class="flex justify-around items-center h-full px-2">
+            <button onclick="switchTab('chart')" id="btn-chart" class="nav-btn active text-brand-gold flex flex-col items-center justify-center w-full h-full transition-colors duration-200">
                 <i class="fa-solid fa-chart-candlestick text-xl mb-1"></i>
                 <span class="text-[10px] font-medium">Chart</span>
             </button>
-            <button type="button" onclick="switchTab('news')" id="btn-news" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-gray-300 transition-colors duration-200">
-                <i class="fa-solid fa-globe text-xl mb-1"></i>
+            <button onclick="switchTab('news')" id="btn-news" class="nav-btn text-gray-500 flex flex-col items-center justify-center w-full h-full transition-colors duration-200">
+                <i class="fa-solid fa-newspaper text-xl mb-1"></i>
                 <span class="text-[10px] font-medium">News</span>
             </button>
-            <!-- الزر الجديد للذكاء الاصطناعي -->
-            <button type="button" onclick="switchTab('ai')" id="btn-ai" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-purple-400 transition-colors duration-200">
+            <button onclick="switchTab('ai')" id="btn-ai" class="nav-btn text-gray-500 flex flex-col items-center justify-center w-full h-full transition-colors duration-200">
                 <i class="fa-solid fa-brain text-xl mb-1"></i>
                 <span class="text-[10px] font-medium">AI Predict</span>
             </button>
         </div>
     </nav>
 
-    <!-- Notification Toast -->
-    <div id="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg z-[60] opacity-0 pointer-events-none transition-opacity duration-300 text-sm font-semibold flex items-center space-x-2 w-max">
-        <i class="fa-solid fa-circle-check"></i>
-        <span>تم نسخ الإشارة بنجاح!</span>
-    </div>
-
-    <!-- Application Logic -->
+    <!-- Scripts -->
     <script>
-        // Ensure DOM is fully loaded before attaching logic
-        document.addEventListener('DOMContentLoaded', () => {
-            switchTab('home'); // Force home tab active on load
-            
-            // Mock AI Data Engine (Simulates real-time calculations safely)
-            setInterval(() => {
-                const confEl = document.getElementById('ai-confidence');
-                if (confEl) {
-                    const currentConf = parseInt(confEl.innerText);
-                    let newConf = currentConf + (Math.random() > 0.5 ? 1 : -1);
-                    if (newConf > 99) newConf = 99;
-                    if (newConf < 85) newConf = 85;
-                    confEl.innerText = newConf;
-                }
-                
-                const entryEl = document.getElementById('sig-entry');
-                if (entryEl && Math.random() > 0.7) {
-                    const entry = parseFloat(entryEl.innerText);
-                    const adjustment = (Math.random() * 0.5 - 0.25).toFixed(2);
-                    entryEl.innerText = (entry + parseFloat(adjustment)).toFixed(2);
-                }
-            }, 3000);
+        // Load API key on start
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('xauusd_gemini_api_key');
+            if (savedKey) {
+                document.getElementById('api-key-input').value = savedKey;
+            }
         });
 
-        // Tab Navigation Logic
+        // Tab Switching
         function switchTab(tabId) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            // Reset all buttons
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-brand-gold');
                 btn.classList.add('text-gray-500');
             });
 
-            // Show active tab safely
-            const activeTab = document.getElementById('tab-' + tabId);
-            if (activeTab) activeTab.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
             
-            // Highlight active button safely
             const activeBtn = document.getElementById('btn-' + tabId);
-            if (activeBtn) {
-                activeBtn.classList.remove('text-gray-500');
-                activeBtn.classList.add('text-brand-gold');
-            }
+            activeBtn.classList.remove('text-gray-500');
+            activeBtn.classList.add('text-brand-gold');
         }
 
-        // Copy Signal function for MT5
-        function copyToMT5() {
-            const entry = document.getElementById('sig-entry').innerText;
-            const sl = document.getElementById('sig-sl').innerText;
-            const tp = document.getElementById('sig-tp').innerText;
-            const action = document.getElementById('ai-trend-badge').innerText.includes('BULL') ? 'BUY' : 'SELL';
-            
-            const textToCopy = `XAUUSD AI Signal\nAction: ${action}\nEntry: ${entry}\nSL: ${sl}\nTP: ${tp}`;
-            
-            // Create temporary textarea for copying
-            const textArea = document.createElement("textarea");
-            textArea.value = textToCopy;
-            document.body.appendChild(textArea);
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-                showToast();
-            } catch (err) {
-                console.error('Failed to copy', err);
+        // Save API Key
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            if(!key) {
+                alert("يرجى إدخال المفتاح أولاً!");
+                return;
             }
-            document.body.removeChild(textArea);
-        }
-
-        // Show Toast Notification
-        function showToast() {
-            const toast = document.getElementById('toast');
-            toast.classList.remove('opacity-0');
-            toast.classList.add('opacity-100');
+            localStorage.setItem('xauusd_gemini_api_key', key);
             
+            const btn = document.querySelector('button[onclick="saveApiKey()"]');
+            const originalText = btn.innerText;
+            btn.innerText = "تم الحفظ بنجاح ✓";
+            btn.classList.replace('bg-gray-700', 'bg-green-600');
             setTimeout(() => {
-                toast.classList.remove('opacity-100');
-                toast.classList.add('opacity-0');
-            }, 2500);
+                btn.innerText = originalText;
+                btn.classList.replace('bg-green-600', 'bg-gray-700');
+            }, 2000);
         }
 
-        // --- نظام التنبؤ بالذكاء الاصطناعي (Gemini AI Integration) ---
+        // AI Prediction Logic
         async function analyzeMarketWithAI() {
+            const apiKey = document.getElementById('api-key-input').value.trim();
+            if (!apiKey) {
+                alert("يجب إدخال مفتاح Gemini API وحفظه لكي يعمل الذكاء الاصطناعي.");
+                return;
+            }
+
             const btn = document.getElementById('btn-analyze');
             const loading = document.getElementById('ai-loading');
             const resultBox = document.getElementById('ai-result');
             const dirText = document.getElementById('ai-direction-text');
             const reasonText = document.getElementById('ai-reason-text');
-            const iconContainer = document.getElementById('ai-icon-container');
 
-            // إخفاء الزر والنتيجة، وإظهار التحميل
-            btn.classList.add('hidden');
+            btn.style.display = 'none';
             resultBox.classList.add('hidden');
             loading.classList.remove('hidden');
             loading.classList.add('flex');
-            iconContainer.classList.add('animate-pulse');
 
-            // مفتاح الـ API يظل فارغاً (يعمل تلقائياً داخل هذه البيئة)
-            const apiKey = ""; 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             
-            // مطالبة دقيقة للذكاء الاصطناعي ليرد كـ JSON
-            const prompt = `أنت خبير اقتصادي ومحلل أسواق مالية متخصص في تداول الذهب (XAUUSD) وتستخدم استراتيجيات SMC و ICT والأخبار الاقتصادية الحالية. 
-حلل وضع السوق اللحظي للذهب وتوقع الحركة القادمة.
-أرجع لي فقط JSON بهذا التنسيق وبدون أي نصوص إضافية:
+            const prompt = `أنت خبير اقتصادي في تداول الذهب (XAUUSD). حلل السوق حالياً وأعطني توقعك.
+يجب أن يكون ردك بصيغة JSON فقط بهذا الشكل:
 {
-  "direction": "UP" أو "DOWN",
-  "reason": "سبب مقنع ومختصر في سطرين باللغة العربية يشرح سبب التوقع"
+  "direction": "UP", // أو "DOWN"
+  "reason": "سبب مختصر باللغة العربية يشرح التوقع"
 }`;
 
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                }
+                generationConfig: { responseMimeType: "application/json" }
             };
 
             try {
@@ -483,44 +249,38 @@
                     body: JSON.stringify(payload)
                 });
                 
+                if (!response.ok) {
+                    throw new Error("تأكد من صحة مفتاح API الخاص بك.");
+                }
+
                 const result = await response.json();
+                
                 if (result.candidates && result.candidates.length > 0) {
-                    const jsonText = result.candidates[0].content.parts[0].text;
-                    const aiData = JSON.parse(jsonText);
+                    const aiData = JSON.parse(result.candidates[0].content.parts[0].text);
                     
-                    // تنسيق التصميم بناءً على التوقع
                     if(aiData.direction === "UP") {
-                        dirText.innerText = "راح يرتفع 🚀";
-                        dirText.className = "text-4xl font-black text-center tracking-tighter text-green-500 drop-shadow-[0_0_12px_rgba(34,197,94,0.6)]";
-                        resultBox.className = "w-full mt-6 p-5 rounded-xl border border-green-800/60 bg-green-900/20 block animate-[pulse_2s_ease-in-out_1]";
+                        dirText.innerHTML = 'راح يرتفع <i class="fa-solid fa-arrow-trend-up"></i>';
+                        dirText.className = "text-3xl font-black text-center mb-3 text-green-500";
+                        resultBox.className = "w-full mt-6 p-4 rounded-xl border border-green-800 bg-green-900/20 block";
                     } else {
-                        dirText.innerText = "راح يهبط 🩸";
-                        dirText.className = "text-4xl font-black text-center tracking-tighter text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.6)]";
-                        resultBox.className = "w-full mt-6 p-5 rounded-xl border border-red-800/60 bg-red-900/20 block animate-[pulse_2s_ease-in-out_1]";
+                        dirText.innerHTML = 'راح يهبط <i class="fa-solid fa-arrow-trend-down"></i>';
+                        dirText.className = "text-3xl font-black text-center mb-3 text-red-500";
+                        resultBox.className = "w-full mt-6 p-4 rounded-xl border border-red-800 bg-red-900/20 block";
                     }
                     
                     reasonText.innerText = aiData.reason;
-                    
-                } else {
-                    throw new Error("Invalid AI Response");
                 }
             } catch (error) {
-                console.error("AI Error:", error);
+                console.error(error);
                 dirText.innerText = "حدث خطأ";
-                dirText.className = "text-2xl font-black text-center text-gray-400";
-                reasonText.innerText = "فشل الاتصال بالذكاء الاصطناعي، تأكد من الاتصال بالإنترنت وجرب مجدداً.";
-                resultBox.className = "w-full mt-6 p-5 rounded-xl border border-gray-700 bg-gray-800 block";
+                dirText.className = "text-xl font-bold text-center mb-3 text-gray-400";
+                reasonText.innerText = error.message || "فشل الاتصال بالذكاء الاصطناعي، تأكد من صحة مفتاح API والإنترنت.";
+                resultBox.className = "w-full mt-6 p-4 rounded-xl border border-gray-700 bg-gray-800 block";
             } finally {
-                // إخفاء التحميل وإرجاع الزر للتحليل المتكرر
                 loading.classList.remove('flex');
                 loading.classList.add('hidden');
-                
-                btn.classList.remove('hidden');
-                btn.innerHTML = '<span class="mr-2" dir="rtl">تحديث التحليل</span><i class="fa-solid fa-arrows-rotate text-white"></i>';
-                btn.classList.remove('from-indigo-500', 'to-purple-600', 'py-4');
-                btn.classList.add('bg-gray-700', 'py-3', 'mt-4'); // تصغير الزر بعد أول ضغطة
-                
-                iconContainer.classList.remove('animate-pulse');
+                btn.style.display = 'flex';
+                btn.innerHTML = '<span dir="rtl">تحديث التحليل</span><i class="fa-solid fa-arrows-rotate ml-2"></i>';
             }
         }
     </script>
