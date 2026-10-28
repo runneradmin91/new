@@ -33,7 +33,7 @@
 
     <div class="mt-[60px]">
         <!-- Tab 1: Chart -->
-        <div id="tab-chart" class="tab-content active h-[calc(100vh-130px)]">
+        <div id="tab-chart" class="tab-content h-[calc(100vh-130px)]">
             <div class="tradingview-widget-container" style="height:100%;width:100%">
               <div id="tradingview_chart" style="height:100%;width:100%"></div>
               <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -59,16 +59,12 @@
         </div>
 
         <!-- Tab 2: AI Predict (Auto) -->
-        <div id="tab-ai" class="tab-content p-4">
+        <div id="tab-ai" class="tab-content active p-4">
             <div class="bg-[#131722] rounded-xl p-5 shadow-lg border border-[#2a2e39] relative overflow-hidden">
                 
                 <div class="text-center mb-6">
                     <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600/20 rounded-full mb-3 relative">
                         <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 0-9 9c0 3.39 1.88 6.35 4.67 7.96.22.13.33.39.33.65v2.89c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-2.89c0-.26.11-.52.33-.65A9.005 9.005 0 0 0 21 11a9 9 0 0 0-9-9zm-1 18h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
-                        <span class="absolute top-0 right-0 flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
-                        </span>
                     </div>
                     <h2 class="text-lg font-bold text-white mb-1">رادار الذكاء الاصطناعي (SMC/ICT)</h2>
                     <p class="text-xs text-gray-400">تحليل آلي على مدار الساعة لزوج الذهب/دولار</p>
@@ -114,11 +110,11 @@
 
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('chart', this)">
+        <div class="nav-item" onclick="switchTab('chart', this)">
             <svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 4 6-6"/></svg>
             <span>الشارت</span>
         </div>
-        <div class="nav-item" onclick="switchTab('ai', this)">
+        <div class="nav-item active" onclick="switchTab('ai', this)">
             <svg viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 0-9 9c0 3.39 1.88 6.35 4.67 7.96.22.13.33.39.33.65v2.89c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-2.89c0-.26.11-.52.33-.65A9.005 9.005 0 0 0 21 11a9 9 0 0 0-9-9zm-1 18h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
             <span>التنبؤ الآلي</span>
         </div>
@@ -126,11 +122,11 @@
 
     <script>
         // ==========================================
-        // 🔴 ضع مفتاح API الخاص بك هنا بين علامتي التنصيص
+        // 🔴 ضع مفتاح API الخاص بك هنا 
         // ==========================================
         const GEMINI_API_KEY = "AQ.Ab8RN6Iw9ccYjrXdSeQAa-Dm9JSgha0yOANX3c1IiAO8ijjaxQ"; 
         
-        let countdown = 300; // 5 minutes in seconds
+        let countdown = 300; 
 
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -156,8 +152,8 @@
             errorBox.classList.add('hidden');
 
             try {
-                // استخدام النسخة المحدثة لضمان الدقة
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+                // تم التغيير إلى gemini-pro لحل مشكلة عدم العثور على النموذج
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
                 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -165,12 +161,11 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: "أنت خبير تداول خوارزمي محترف تتداول الذهب (XAUUSD) حصراً وتعتمد على مفاهيم الـ SMC (Smart Money Concepts) و ICT (Inner Circle Trader) ومناطق العرض والطلب. قم بدراسة الوضع الاقتصادي والسياسي الحالي لحظياً وهيكل السوق. أعطني توصية قاطعة للذهب الآن. \n\nشروط الرد: يجب أن ترد بصيغة JSON فقط يحتوي على:\n1. 'signal': وتكون قيمتها إما 'اشتري' أو 'بيع' فقط.\n2. 'analysis': تحليل دقيق جداً لا يتجاوز 3 أسطر بالعربية يشرح سبب الدخول من ناحية كسر الهيكل (BOS) أو تغير الاتجاه (CHOCH) أو الأخبار المؤثرة."
+                                text: "أنت خبير تداول خوارزمي محترف تتداول الذهب (XAUUSD) وتعتمد على مفاهيم الـ SMC (Smart Money Concepts). أعطني توصية قاطعة للذهب الآن. \n\nشروط الرد: يجب أن ترد بصيغة JSON فقط يحتوي على:\n1. 'signal': وتكون قيمتها إما 'اشتري' أو 'بيع' فقط.\n2. 'analysis': تحليل دقيق جداً لا يتجاوز 3 أسطر بالعربية يشرح سبب الدخول."
                             }]
                         }],
                         generationConfig: {
-                            temperature: 0.2, // تقليل العشوائية ليكون دقيقاً ومنطقياً
-                            response_mime_type: "application/json"
+                            temperature: 0.2
                         }
                     })
                 });
@@ -182,6 +177,10 @@
                 }
 
                 let aiText = data.candidates[0].content.parts[0].text;
+                
+                // تنظيف النص من علامات الماركداون لتجنب أخطاء التحليل (JSON Parse)
+                aiText = aiText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                
                 const result = JSON.parse(aiText);
 
                 const signalEl = document.getElementById('predictionSignal');
@@ -193,19 +192,17 @@
                     signalEl.innerHTML = 'بيع 🩸';
                     signalEl.className = 'text-4xl font-black mb-4 py-4 rounded-xl border-2 border-red-500 text-red-500 bg-red-500/10 shadow-[0_0_15px_rgba(239,68,68,0.5)]';
                 } else {
-                    signalEl.innerHTML = result.signal; // للحماية في حال رد بشيء آخر
+                    signalEl.innerHTML = result.signal; 
                 }
                 
                 document.getElementById('predictionReason').innerText = result.analysis;
                 
-                // تحديث الوقت
                 const now = new Date();
                 document.getElementById('lastUpdateTime').innerText = now.toLocaleTimeString('ar-IQ', { timeZone: 'Asia/Baghdad' });
                 
                 loadingBox.classList.add('hidden');
                 resultBox.classList.remove('hidden');
 
-                // إعادة ضبط العداد
                 countdown = 300; 
 
             } catch (error) {
@@ -215,7 +212,6 @@
             }
         }
 
-        // تحديث العداد الزمني بالثواني والدقائق
         setInterval(() => {
             if(countdown > 0) {
                 countdown--;
@@ -225,11 +221,10 @@
                     (minutes < 10 ? '0' : '') + minutes + ':' + 
                     (seconds < 10 ? '0' : '') + seconds;
             } else {
-                analyzeMarket(); // تحديث تلقائي عند انتهاء الوقت
+                analyzeMarket();
             }
         }, 1000);
 
-        // تشغيل التحليل فور فتح الصفحة
         window.onload = function() {
             analyzeMarket();
         };
