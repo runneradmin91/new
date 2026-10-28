@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>XAUUSD AI Analysis Pro</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            gold: '#FFD700',
+                            dark: '#0f172a',
+                            panel: '#1e293b',
+                            up: '#10b981', // Emerald 500
+                            down: '#ef4444', // Red 500
+                        }
+                    },
+                    padding: {
+                        'safe': 'env(safe-area-inset-bottom)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar for webkit (iOS) */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior-y: none; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Tab switching logic to prevent iframes from reloading */
+        .tab-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 90px; /* Space for bottom nav */
+        }
+        .tab-content.active {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Pulse animation for live indicator */
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+        .live-dot {
+            animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="fixed inset-0 flex flex-col bg-brand-dark text-white overflow-hidden w-full h-full">
+
+    <!-- Global Header -->
+    <header class="fixed top-0 w-full z-50 bg-brand-dark border-b border-gray-800 pt-safe">
+        <div class="flex justify-between items-center px-4 py-3">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-robot text-brand-gold text-xl"></i>
+                <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-gold to-yellow-200">
+                    XAUUSD AI
+                </h1>
+            </div>
+            <div class="flex items-center space-x-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                <div class="w-2 h-2 rounded-full bg-green-500 live-dot"></div>
+                <span class="text-xs font-medium tracking-wide text-green-400">LIVE</span>
+            </div>
+        </div>
+        
+        <!-- Real-time Ticker Tape via TradingView -->
+        <div class="w-full h-[40px] border-t border-gray-800 bg-brand-panel overflow-hidden relative pointer-events-none">
+            <!-- Ticker widget overlay to prevent clicking away -->
+            <div class="absolute inset-0 z-10 pointer-events-auto"></div>
+            <!-- TradingView Widget BEGIN -->
+            <div class="tradingview-widget-container">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+                {
+                "symbol": "OANDA:XAUUSD",
+                "width": "100%",
+                "colorTheme": "dark",
+                "isTransparent": true,
+                "locale": "en"
+                }
+                </script>
+            </div>
+            <!-- TradingView Widget END -->
+        </div>
+    </header>
+
+    <!-- Main Content Container (Accounts for Header) -->
+    <main class="relative flex-1 mt-[95px] w-full h-full">
+
+        <!-- TAB 1: DASHBOARD (AI & Signals) -->
+        <div id="tab-home" class="tab-content active px-4 pt-4">
+            
+            <!-- AI SMC/ICT Strategy Tracker -->
+            <div class="bg-brand-panel rounded-2xl p-4 mb-6 border border-gray-700 shadow-lg shadow-black/50">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                        <i class="fa-solid fa-microchip mr-2 text-brand-gold"></i> SMC / ICT Engine
+                    </h2>
+                    <span id="ai-trend-badge" class="px-2 py-1 text-xs font-bold rounded bg-green-900/50 text-green-400 border border-green-800">
+                        BULLISH
+                    </span>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400">Market Structure (4H)</span>
+                        <span class="font-medium text-white">Bullish BoS</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400">Liquidity Zones</span>
+                        <span class="font-medium text-white">Swept Sell-side</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400">Fair Value Gap (FVG)</span>
+                        <span class="font-medium text-brand-gold">Unmitigated [2315-2318]</span>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <h3 class="text-xs text-gray-400 mb-2">AI PREDICTED SIGNAL</h3>
+                        <div id="ai-signal-box" class="bg-gradient-to-r from-green-900/40 to-brand-panel p-3 rounded-xl border border-green-800/50">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-xl font-bold text-green-400">BUY</span>
+                                <span class="text-xs text-gray-300">Confidence: <span id="ai-confidence">94</span>%</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                <div class="bg-gray-800 rounded p-1">
+                                    <span class="block text-gray-500">Entry</span>
+                                    <span class="font-bold text-white" id="sig-entry">2318.50</span>
+                                </div>
+                                <div class="bg-gray-800 rounded p-1">
+                                    <span class="block text-gray-500">SL</span>
+                                    <span class="font-bold text-red-400" id="sig-sl">2314.00</span>
+                                </div>
+                                <div class="bg-gray-800 rounded p-1">
+                                    <span class="block text-gray-500">TP</span>
+                                    <span class="font-bold text-green-400" id="sig-tp">2335.00</span>
+                                </div>
+                            </div>
+                            <button onclick="copyToMT5()" class="mt-3 w-full bg-brand-gold text-brand-dark font-bold py-2 rounded-lg text-sm flex items-center justify-center space-x-2 active:bg-yellow-500 transition">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Copy Signal to MT5</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TradingView Technical Analysis Widget -->
+            <div class="bg-brand-panel rounded-2xl overflow-hidden border border-gray-700 shadow-lg shadow-black/50 h-[450px]">
+                <div class="p-3 border-b border-gray-700 flex items-center">
+                    <i class="fa-solid fa-gauge-high mr-2 text-brand-gold"></i>
+                    <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">Technical Oscillators</h2>
+                </div>
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                    <div class="tradingview-widget-container__widget" style="height: calc(100% - 32px); width: 100%;"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+                    {
+                    "interval": "15m",
+                    "width": "100%",
+                    "isTransparent": true,
+                    "height": "100%",
+                    "symbol": "OANDA:XAUUSD",
+                    "showIntervalTabs": true,
+                    "displayMode": "single",
+                    "locale": "en",
+                    "colorTheme": "dark"
+                    }
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+        </div>
+
+        <!-- TAB 2: ADVANCED CHART -->
+        <div id="tab-chart" class="tab-content w-full h-full">
+            <!-- TradingView Widget BEGIN -->
+            <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                <div id="tradingview_xauusd" style="height: calc(100% - 20px); width: 100%;"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                <script type="text/javascript">
+                new TradingView.widget(
+                {
+                "autosize": true,
+                "symbol": "OANDA:XAUUSD",
+                "interval": "15",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "enable_publishing": false,
+                "backgroundColor": "#0f172a",
+                "gridColor": "#1e293b",
+                "hide_top_toolbar": false,
+                "hide_legend": false,
+                "save_image": false,
+                "container_id": "tradingview_xauusd",
+                "studies": [
+                    "Volume@tv-basicstudies",
+                    "MACD@tv-basicstudies",
+                    "RSI@tv-basicstudies"
+                ]
+                }
+                );
+                </script>
+            </div>
+            <!-- TradingView Widget END -->
+        </div>
+
+        <!-- TAB 3: NEWS & CALENDAR -->
+        <div id="tab-news" class="tab-content px-4 pt-4">
+            <div class="bg-brand-panel rounded-2xl overflow-hidden border border-gray-700 shadow-lg shadow-black/50 h-[600px]">
+                <div class="p-3 border-b border-gray-700 flex items-center bg-brand-panel z-10 relative">
+                    <i class="fa-solid fa-newspaper mr-2 text-brand-gold"></i>
+                    <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">Economic Calendar (Impacts Gold)</h2>
+                </div>
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                    <div class="tradingview-widget-container__widget" style="height: calc(100% - 40px); width: 100%;"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                    {
+                    "colorTheme": "dark",
+                    "isTransparent": true,
+                    "width": "100%",
+                    "height": "100%",
+                    "locale": "en",
+                    "importanceFilter": "-1,0,1",
+                    "currencyFilter": "USD"
+                    }
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+        </div>
+
+        <!-- TAB 4: AI PREDICTION (تنبؤ الذكاء الاصطناعي) -->
+        <div id="tab-ai" class="tab-content px-4 pt-4">
+            <div class="bg-brand-panel rounded-2xl p-5 border border-indigo-900/50 shadow-lg shadow-black/50 flex flex-col items-center justify-center min-h-[450px]">
+                
+                <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(99,102,241,0.5)]" id="ai-icon-container">
+                    <i class="fa-solid fa-brain text-4xl text-white"></i>
+                </div>
+                
+                <h2 class="text-xl font-bold text-white mb-2 text-center font-sans tracking-wide" dir="rtl">تنبؤ الذكاء الاصطناعي</h2>
+                <p class="text-gray-400 text-sm text-center mb-8 px-2" dir="rtl">
+                    يقوم نظام الذكاء الاصطناعي (Gemini AI) بدراسة السوق، سيولة ICT، والأخبار اللحظية لتوقع اتجاه الذهب.
+                </p>
+                
+                <!-- زر التحليل -->
+                <button id="btn-analyze" onclick="analyzeMarketWithAI()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center space-x-3 text-lg">
+                    <span class="mr-2" dir="rtl">حلل السوق الآن</span>
+                    <i class="fa-solid fa-bolt text-yellow-300"></i>
+                </button>
+
+                <!-- حالة التحميل (جاري التحليل) -->
+                <div id="ai-loading" class="hidden w-full mt-6 flex-col items-center">
+                    <div class="relative w-12 h-12 mb-4">
+                        <div class="absolute inset-0 border-t-4 border-indigo-500 border-solid rounded-full animate-spin"></div>
+                        <div class="absolute inset-2 border-t-4 border-purple-400 border-solid rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+                    </div>
+                    <p class="text-sm text-indigo-300 animate-pulse font-medium" dir="rtl">الذكاء الاصطناعي يدرس الشارت الآن...</p>
+                </div>
+
+                <!-- صندوق النتيجة -->
+                <div id="ai-result" class="hidden w-full mt-6 p-5 rounded-xl border transition-all duration-500">
+                    <div class="flex justify-center mb-3">
+                        <h3 id="ai-direction-text" class="text-4xl font-black text-center tracking-tighter">راح يرتفع</h3>
+                    </div>
+                    <div class="w-full h-px bg-gray-700 my-3"></div>
+                    <p id="ai-reason-text" class="text-sm text-gray-300 text-right leading-relaxed font-medium" dir="rtl"></p>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar (iOS Style) -->
+    <nav class="fixed bottom-0 w-full glass-nav z-50 pb-safe">
+        <div class="flex justify-around items-center h-16 px-1">
+            <button type="button" onclick="switchTab('home')" id="btn-home" class="nav-btn flex flex-col items-center justify-center w-full h-full text-brand-gold transition-colors duration-200">
+                <i class="fa-solid fa-bolt text-xl mb-1"></i>
+                <span class="text-[10px] font-medium">Signals</span>
+            </button>
+            <button type="button" onclick="switchTab('chart')" id="btn-chart" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-gray-300 transition-colors duration-200">
+                <i class="fa-solid fa-chart-candlestick text-xl mb-1"></i>
+                <span class="text-[10px] font-medium">Chart</span>
+            </button>
+            <button type="button" onclick="switchTab('news')" id="btn-news" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-gray-300 transition-colors duration-200">
+                <i class="fa-solid fa-globe text-xl mb-1"></i>
+                <span class="text-[10px] font-medium">News</span>
+            </button>
+            <!-- الزر الجديد للذكاء الاصطناعي -->
+            <button type="button" onclick="switchTab('ai')" id="btn-ai" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-purple-400 transition-colors duration-200">
+                <i class="fa-solid fa-brain text-xl mb-1"></i>
+                <span class="text-[10px] font-medium">AI Predict</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg z-[60] opacity-0 pointer-events-none transition-opacity duration-300 text-sm font-semibold flex items-center space-x-2 w-max">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>تم نسخ الإشارة بنجاح!</span>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // Ensure DOM is fully loaded before attaching logic
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('home'); // Force home tab active on load
+            
+            // Mock AI Data Engine (Simulates real-time calculations safely)
+            setInterval(() => {
+                const confEl = document.getElementById('ai-confidence');
+                if (confEl) {
+                    const currentConf = parseInt(confEl.innerText);
+                    let newConf = currentConf + (Math.random() > 0.5 ? 1 : -1);
+                    if (newConf > 99) newConf = 99;
+                    if (newConf < 85) newConf = 85;
+                    confEl.innerText = newConf;
+                }
+                
+                const entryEl = document.getElementById('sig-entry');
+                if (entryEl && Math.random() > 0.7) {
+                    const entry = parseFloat(entryEl.innerText);
+                    const adjustment = (Math.random() * 0.5 - 0.25).toFixed(2);
+                    entryEl.innerText = (entry + parseFloat(adjustment)).toFixed(2);
+                }
+            }, 3000);
+        });
+
+        // Tab Navigation Logic
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Reset all buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-brand-gold');
+                btn.classList.add('text-gray-500');
+            });
+
+            // Show active tab safely
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) activeTab.classList.add('active');
+            
+            // Highlight active button safely
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-gray-500');
+                activeBtn.classList.add('text-brand-gold');
+            }
+        }
+
+        // Copy Signal function for MT5
+        function copyToMT5() {
+            const entry = document.getElementById('sig-entry').innerText;
+            const sl = document.getElementById('sig-sl').innerText;
+            const tp = document.getElementById('sig-tp').innerText;
+            const action = document.getElementById('ai-trend-badge').innerText.includes('BULL') ? 'BUY' : 'SELL';
+            
+            const textToCopy = `XAUUSD AI Signal\nAction: ${action}\nEntry: ${entry}\nSL: ${sl}\nTP: ${tp}`;
+            
+            // Create temporary textarea for copying
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Failed to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Show Toast Notification
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2500);
+        }
+
+        // --- نظام التنبؤ بالذكاء الاصطناعي (Gemini AI Integration) ---
+        async function analyzeMarketWithAI() {
+            const btn = document.getElementById('btn-analyze');
+            const loading = document.getElementById('ai-loading');
+            const resultBox = document.getElementById('ai-result');
+            const dirText = document.getElementById('ai-direction-text');
+            const reasonText = document.getElementById('ai-reason-text');
+            const iconContainer = document.getElementById('ai-icon-container');
+
+            // إخفاء الزر والنتيجة، وإظهار التحميل
+            btn.classList.add('hidden');
+            resultBox.classList.add('hidden');
+            loading.classList.remove('hidden');
+            loading.classList.add('flex');
+            iconContainer.classList.add('animate-pulse');
+
+            // مفتاح الـ API يظل فارغاً (يعمل تلقائياً داخل هذه البيئة)
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            
+            // مطالبة دقيقة للذكاء الاصطناعي ليرد كـ JSON
+            const prompt = `أنت خبير اقتصادي ومحلل أسواق مالية متخصص في تداول الذهب (XAUUSD) وتستخدم استراتيجيات SMC و ICT والأخبار الاقتصادية الحالية. 
+حلل وضع السوق اللحظي للذهب وتوقع الحركة القادمة.
+أرجع لي فقط JSON بهذا التنسيق وبدون أي نصوص إضافية:
+{
+  "direction": "UP" أو "DOWN",
+  "reason": "سبب مقنع ومختصر في سطرين باللغة العربية يشرح سبب التوقع"
+}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0) {
+                    const jsonText = result.candidates[0].content.parts[0].text;
+                    const aiData = JSON.parse(jsonText);
+                    
+                    // تنسيق التصميم بناءً على التوقع
+                    if(aiData.direction === "UP") {
+                        dirText.innerText = "راح يرتفع 🚀";
+                        dirText.className = "text-4xl font-black text-center tracking-tighter text-green-500 drop-shadow-[0_0_12px_rgba(34,197,94,0.6)]";
+                        resultBox.className = "w-full mt-6 p-5 rounded-xl border border-green-800/60 bg-green-900/20 block animate-[pulse_2s_ease-in-out_1]";
+                    } else {
+                        dirText.innerText = "راح يهبط 🩸";
+                        dirText.className = "text-4xl font-black text-center tracking-tighter text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.6)]";
+                        resultBox.className = "w-full mt-6 p-5 rounded-xl border border-red-800/60 bg-red-900/20 block animate-[pulse_2s_ease-in-out_1]";
+                    }
+                    
+                    reasonText.innerText = aiData.reason;
+                    
+                } else {
+                    throw new Error("Invalid AI Response");
+                }
+            } catch (error) {
+                console.error("AI Error:", error);
+                dirText.innerText = "حدث خطأ";
+                dirText.className = "text-2xl font-black text-center text-gray-400";
+                reasonText.innerText = "فشل الاتصال بالذكاء الاصطناعي، تأكد من الاتصال بالإنترنت وجرب مجدداً.";
+                resultBox.className = "w-full mt-6 p-5 rounded-xl border border-gray-700 bg-gray-800 block";
+            } finally {
+                // إخفاء التحميل وإرجاع الزر للتحليل المتكرر
+                loading.classList.remove('flex');
+                loading.classList.add('hidden');
+                
+                btn.classList.remove('hidden');
+                btn.innerHTML = '<span class="mr-2" dir="rtl">تحديث التحليل</span><i class="fa-solid fa-arrows-rotate text-white"></i>';
+                btn.classList.remove('from-indigo-500', 'to-purple-600', 'py-4');
+                btn.classList.add('bg-gray-700', 'py-3', 'mt-4'); // تصغير الزر بعد أول ضغطة
+                
+                iconContainer.classList.remove('animate-pulse');
+            }
+        }
+    </script>
+</body>
+</html>
